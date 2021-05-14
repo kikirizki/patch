@@ -256,7 +256,7 @@ if __name__ == "__main__":
     
     pose_cords = []
     for item in tqdm(img_list):
-        img = imread(os.path.join(img_dir, item)
+        img = imread(os.path.join(img_dir, item))
         cord = cordinates_from_image_file(img, model=model)
         pose_cords.append(cord)
         color,_ = draw_pose_from_cords(cord, im_shape)
