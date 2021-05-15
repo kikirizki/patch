@@ -22,7 +22,7 @@ limbSeq = [[2,3], [2,6], [3,4], [4,5], [6,7], [7,8], [2,9], [9,10],
 
 threshold = 0.1
 boxsize = 368
-scale_search = [0.5, 1, 1.5, 2]
+scale_search = [1]
 
 
 def compute_cordinates(heatmap_avg, paf_avg, oriImg, th1=0.1, th2=0.05):
