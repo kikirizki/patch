@@ -44,8 +44,8 @@ if __name__ == '__main__':
     torch.backends.cudnn.benchmark = True
     dataset_dir = '/content/everybody_dance_now_pytorch/datasets/cardio_dance_test'
     pose_name = '/content/everybody_dance_now_pytorch/datasets/cardio_dance_test/poses_test.npy'
-    ckpt_dir = '/content/everybody_dance_now_pytorch/checkpoints'
-    result_dir = '/content/everybody_dance_now_pytorch/results'
+    ckpt_dir = '/content/everybody_dance_now_pytorch/face_enhancer/checkpoints'
+    result_dir = '/content/everybody_dance_now_pytorch/face_enhancer/results'
 
     image_folder = dataset.ImageFolderDataset(dataset_dir, cache=os.path.join(dataset_dir, 'local.db'), is_test=True)
     face_dataset = dataset.FaceCropDataset(image_folder, pose_name, image_transforms, crop_size=48)
