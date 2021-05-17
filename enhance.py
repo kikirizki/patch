@@ -44,8 +44,8 @@ if __name__ == '__main__':
     torch.backends.cudnn.benchmark = True
     dataset_dir = '/content/everybody_dance_now_pytorch/datasets/cardio_dance_test'
     pose_name = '/content/everybody_dance_now_pytorch/datasets/cardio_dance_test/poses_test.npy'
-    ckpt_dir = '/content/everybody_dance_now_pytorch/face_enhancer/checkpoints'
-    result_dir = '/content/everybody_dance_now_pytorch/face_enhancer/results'
+    ckpt_dir = '/content/everybody_dance_now_pytorch/checkpoints'
+    result_dir = '/content/everybody_dance_now_pytorch/results'
 
     image_folder = dataset.ImageFolderDataset(dataset_dir, cache=os.path.join(dataset_dir, 'local.db'), is_test=True)
     face_dataset = dataset.FaceCropDataset(image_folder, pose_name, image_transforms, crop_size=48)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     generator = load_models(os.path.join(ckpt_dir, path), nd, nb)
 
     video = []    
-    for i in range(length):
+    for i in range(500):
         _, fake_head, top, bottom, left, right, real_full, fake_full \
             = face_dataset.get_full_sample(i)
 
@@ -72,8 +72,8 @@ if __name__ == '__main__':
         enhanced = torch2numpy(enhanced)
         fake_full_old = fake_full.copy()
         fake_full[top: bottom, left: right, :] = enhanced
-        video.append(np.concatenate((real_full, fake_full_old, fake_full), axis=1))
+        video.append(fake_full)
                
-    with get_writer('teaser.avi', fps=25) as w:
+    with get_writer(result_dir+"/final_result.avi", fps=25) as w:
         for im in video:
-            w.append_data(im)
+          w.append_data(im)
