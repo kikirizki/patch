@@ -3,7 +3,7 @@ import dataset
 from trainer import Trainer
 
 import os
-
+import cv2
 import torch
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
@@ -46,8 +46,10 @@ if __name__ == '__main__':
     pose_name = '/content/everybody_dance_now_pytorch/datasets/cardio_dance_test/poses_test.npy'
     ckpt_dir = '/content/everybody_dance_now_pytorch/checkpoints'
     result_dir = '/content/everybody_dance_now_pytorch/results'
+    n_images = len(os.listdir(os.path.join(dataset_dir,"test_A")))
+    n_digits = len(str(n_images))
 
-    image_folder = dataset.ImageFolderDataset(dataset_dir, cache=os.path.join(dataset_dir, 'local.db'), is_test=True)
+    image_folder = dataset.ImageFolderDataset(dataset_dir, cache=os.path.join(dataset_dir, 'local.db'))
     face_dataset = dataset.FaceCropDataset(image_folder, pose_name, image_transforms, crop_size=48)
     length = len(face_dataset)
     
@@ -58,9 +60,26 @@ if __name__ == '__main__':
     generator = load_models(os.path.join(ckpt_dir, path), nd, nb)
 
     video = []    
+    video_set = []
+    for i in range(n_images):
+      filename = ((n_digits-len(str(i)))*'0')+str(i)+".png"
+      skeleton_path = os.path.join(dataset_dir,"test_A/"+filename)
+      synch_path = os.path.join(dataset_dir,"test_sync/"+filename)
+      realimg_path = os.path.join(dataset_dir,"test_real/"+filename)
+      print(skeleton_path)
+      skeleton = cv2.imread(skeleton_path)    
+      realimg = cv2.imread(realimg_path)
+      synch = cv2.imread(synch_path)
+
+      video_set.append(np.concatenate((realimg,skeleton), axis=1))
+    with get_writer(result_dir+"/final_result_set.avi", fps=25) as w:
+        for im in video_set:
+          w.append_data(im)
+    
     for i in range(length):
         _, fake_head, top, bottom, left, right, real_full, fake_full \
             = face_dataset.get_full_sample(i)
+          
 
         with torch.no_grad():
             fake_head.unsqueeze_(0)
@@ -72,7 +91,8 @@ if __name__ == '__main__':
         enhanced = torch2numpy(enhanced)
         fake_full_old = fake_full.copy()
         fake_full[top: bottom, left: right, :] = enhanced
-        video.append(fake_full)
+        
+        video.append( fake_full)
                
     with get_writer(result_dir+"/final_result.avi", fps=25) as w:
         for im in video:
