@@ -3,6 +3,7 @@ import dataset
 from trainer import Trainer
 
 import os
+import cv2
 
 import torch
 from torch.utils.data import DataLoader
@@ -56,12 +57,21 @@ if __name__ == '__main__':
     nb = int(path[path.find('res') + 3])
     print(path, nd, nb)
     generator = load_models(os.path.join(ckpt_dir, path), nd, nb)
+    n_images = length
+    n_digits = len(str(n_images))
 
     video = []    
     for i in range(length):
         _, fake_head, top, bottom, left, right, real_full, fake_full \
             = face_dataset.get_full_sample(i)
-
+        filename = ((n_digits-len(str(i)))*'0')+str(i)+".png"    
+        skeleton_path = os.path.join(dataset_dir,"test_A/"+filename)    
+        real_image_path = os.path.join(dataset_dir,"test_real/"+filename)    
+        
+        skeleton = cv2.imread(skeleton_path)
+        real_image = cv2.imread(real_image_path)
+        skeleton = cv2.resize(skeleton,(fake_full.shape[0],fake_full.shape[1]))
+        real_image = cv2.resize(real_image,(fake_full.shape[0],fake_full.shape[1]))
         with torch.no_grad():
             fake_head.unsqueeze_(0)
             fake_head = fake_head.to(device)
@@ -72,7 +82,7 @@ if __name__ == '__main__':
         enhanced = torch2numpy(enhanced)
         fake_full_old = fake_full.copy()
         fake_full[top: bottom, left: right, :] = enhanced
-        video.append(fake_full)
+        video.append(np.concatenate((real_image,skeleton, fake_full_old), axis=1))
                
     with get_writer(result_dir+"/final_result.avi", fps=25) as w:
         for im in video:
