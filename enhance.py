@@ -58,7 +58,7 @@ if __name__ == '__main__':
     generator = load_models(os.path.join(ckpt_dir, path), nd, nb)
 
     video = []    
-    for i in range(500):
+    for i in range(length):
         _, fake_head, top, bottom, left, right, real_full, fake_full \
             = face_dataset.get_full_sample(i)
 
